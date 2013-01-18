@@ -21,25 +21,29 @@
 #
 #   James Clemence <james+github@jvc26.org>
 #
-class drush {
+class drush (
+    $install_dependencies = true,
+    ) {
 
     include drush::params
 
-    package {['git', 'php5-cli', 'php-pear'] :
+    if ($install_dependencies) {
+      package {['git', 'php5-cli', 'php-pear'] :
         ensure => present,
-    }
+      }
 
-    package { 'Console_Table':
-        ensure   => present,
-        provider => pear,
-        require  => Package['php-pear'],
+      package { 'Console_Table':
+          ensure   => present,
+          provider => pear,
+          require  => Package['php-pear'],
+      }
     }
 
     exec { 'fetch-drush':
         cwd     => '/tmp',
         command => "/usr/bin/git clone --branch $drush::params::branch_name http://git.drupal.org/project/drush.git",
         creates => '/tmp/drush',
-        require => Package['php5-cli', 'php-pear', 'Console_Table', 'git'], 
+        require => Package['php5-cli', 'php-pear', 'Console_Table', 'git'],
     }
 
     file { '/usr/local/lib/drush':
